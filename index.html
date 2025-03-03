@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhatCrystal</title>
+    <title>Phat Website</title>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
@@ -17,13 +17,13 @@
 </head>
 <body>
     <h2>Paste & Chỉnh Sửa Nội Dung</h2>
-    <textarea id="pasteContent" placeholder="Dán nội dung vào đây..."></textarea>
+    <textarea id="pasteContent" placeholder="Dán Tọa Độ....."></textarea>
     <br>
     <button onclick="saveContent()">💾 Lưu</button>
     <button onclick="clearContent()">🗑 Xóa</button>
 
     <script>
-        // Cấu hình Firebase
+        // ⚠️ Đặt Firebase Config ĐÚNG vị trí (trước khi gọi database)
         const firebaseConfig = {
             apiKey: "AIzaSyB41VujCQ_WfQuHDvUdiyEkfPzMk9QvA-s",
             authDomain: "toadonpc-ede4d.firebaseapp.com",
@@ -35,26 +35,34 @@
             measurementId: "G-F5B2R4RJL8"
         };
 
-        // Khởi tạo Firebase
-        firebase.initializeApp(firebaseConfig);
+        // 🔹 Khởi tạo Firebase
+        const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const contentRef = db.ref("pastebin");
 
-        // Tự động tải nội dung khi mở trang
+        // 🔹 Load nội dung khi mở trang
         contentRef.on("value", (snapshot) => {
-            document.getElementById("pasteContent").value = snapshot.val() || "";
+            if (snapshot.exists()) {
+                document.getElementById("pasteContent").value = snapshot.val();
+            } else {
+                document.getElementById("pasteContent").value = "";
+            }
         });
 
         function saveContent() {
             let content = document.getElementById("pasteContent").value;
-            contentRef.set(content);
-            alert("✅ Đã lưu nội dung!");
+            contentRef.set(content)
+                .then(() => alert("✅ Đã lưu nội dung!"))
+                .catch((error) => alert("❌ Lỗi: " + error.message));
         }
 
         function clearContent() {
-            contentRef.set("");
-            document.getElementById("pasteContent").value = "";
-            alert("🗑 Đã xóa nội dung!");
+            contentRef.set("")
+                .then(() => {
+                    document.getElementById("pasteContent").value = "";
+                    alert("🗑 Đã xóa nội dung!");
+                })
+                .catch((error) => alert("❌ Lỗi: " + error.message));
         }
     </script>
 </body>

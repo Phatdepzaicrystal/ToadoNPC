@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paste Tọa Độ</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <!-- ✅ Dùng Firebase bản `compat` -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
         textarea { width: 90%; height: 150px; margin-bottom: 10px; }
@@ -14,7 +16,7 @@
 </head>
 <body>
 
-    <h2>📍 Lưu & Xem Tọa Độ NPC</h2>
+    <h2>Phat Hub Zzz</h2>
     <textarea id="pasteContent" placeholder="Nhập tọa độ NPC..."></textarea><br>
 
     <button id="saveBtn">💾 Lưu</button>
@@ -40,7 +42,7 @@
 
         let textArea = document.getElementById("pasteContent");
 
-        // 🔹 Kiểm tra cache trước khi tải từ Firebase (tải nhanh hơn)
+        // 🔹 Kiểm tra cache trước khi tải từ Firebase
         const cachedData = localStorage.getItem("pasteContent");
         if (cachedData) {
             textArea.value = cachedData;

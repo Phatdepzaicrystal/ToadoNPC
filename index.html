@@ -38,24 +38,30 @@
         const db = firebase.database();
         const contentRef = db.ref("pastebin");
 
+        let textArea = document.getElementById("pasteContent");
+
         // 🔹 Kiểm tra cache trước khi tải từ Firebase (tải nhanh hơn)
         const cachedData = localStorage.getItem("pasteContent");
         if (cachedData) {
-            document.getElementById("pasteContent").value = cachedData;
+            textArea.value = cachedData;
         }
 
-        // 🔹 Tải dữ liệu từ Firebase theo thời gian thực
+        // 🔹 Chỉ cập nhật DOM khi nội dung thực sự thay đổi
         contentRef.on("value", (snapshot) => {
             if (snapshot.exists()) {
-                let content = snapshot.val();
-                document.getElementById("pasteContent").value = content;
-                localStorage.setItem("pasteContent", content); // Lưu vào cache
+                let newContent = snapshot.val();
+                if (textArea.value !== newContent) {
+                    requestAnimationFrame(() => {
+                        textArea.value = newContent;
+                        localStorage.setItem("pasteContent", newContent); // Lưu vào cache
+                    });
+                }
             }
         });
 
         // 🔹 Lưu nội dung lên Firebase
         document.getElementById("saveBtn").addEventListener("click", function () {
-            let content = document.getElementById("pasteContent").value;
+            let content = textArea.value;
             contentRef.set(content)
                 .then(() => alert("✅ Đã lưu!"))
                 .catch((error) => alert("❌ Lỗi: " + error.message));
@@ -65,7 +71,7 @@
         document.getElementById("clearBtn").addEventListener("click", function () {
             contentRef.set("")
                 .then(() => {
-                    document.getElementById("pasteContent").value = "";
+                    textArea.value = "";
                     alert("🗑 Đã xóa nội dung!");
                 })
                 .catch((error) => alert("❌ Lỗi: " + error.message));
@@ -75,7 +81,9 @@
         document.getElementById("refreshBtn").addEventListener("click", function () {
             contentRef.once("value").then((snapshot) => {
                 if (snapshot.exists()) {
-                    document.getElementById("pasteContent").value = snapshot.val();
+                    requestAnimationFrame(() => {
+                        textArea.value = snapshot.val();
+                    });
                 }
             });
         });

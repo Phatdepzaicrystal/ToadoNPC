@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pastebin Đơn Giản</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        textarea { width: 80%; height: 200px; font-size: 16px; }
+        button { padding: 10px; font-size: 16px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Paste & Chỉnh Sửa Nội Dung</h2>
+    <textarea id="pasteContent" placeholder="Dán nội dung vào đây..."></textarea>
+    <br>
+    <button onclick="saveContent()">💾 Lưu</button>
+    <button onclick="clearContent()">🗑 Xóa</button>
+
+    <script>
+        // Load nội dung cũ từ localStorage khi mở trang
+        document.getElementById("pasteContent").value = localStorage.getItem("savedPaste") || "";
+
+        function saveContent() {
+            let content = document.getElementById("pasteContent").value;
+            localStorage.setItem("savedPaste", content);
+            alert("✅ Đã lưu nội dung!");
+        }
+
+        function clearContent() {
+            localStorage.removeItem("savedPaste");
+            document.getElementById("pasteContent").value = "";
+            alert("🗑 Đã xóa nội dung!");
+        }
+    </script>
+</body>
+</html>

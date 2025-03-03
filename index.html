@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Của Phát</title>
+    <title>Pastebin Firebase</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js"></script>
+
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        textarea { width: 80%; height: 200px; font-size: 16px; }
-        button { padding: 10px; font-size: 16px; margin-top: 10px; }
+        textarea { width: 80%; height: 200px; font-size: 16px; margin-bottom: 10px; }
+        button { padding: 10px; font-size: 16px; margin: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -18,17 +23,36 @@
     <button onclick="clearContent()">🗑 Xóa</button>
 
     <script>
-        // Load nội dung cũ từ localStorage khi mở trang
-        document.getElementById("pasteContent").value = localStorage.getItem("savedPaste") || "";
+        // Cấu hình Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB41VujCQ_WfQuHDvUdiyEkfPzMk9QvA-s",
+            authDomain: "toadonpc-ede4d.firebaseapp.com",
+            databaseURL: "https://toadonpc-ede4d-default-rtdb.firebaseio.com",
+            projectId: "toadonpc-ede4d",
+            storageBucket: "toadonpc-ede4d.appspot.com",
+            messagingSenderId: "311129256221",
+            appId: "1:311129256221:web:d97765017b63b33050f1f4",
+            measurementId: "G-F5B2R4RJL8"
+        };
+
+        // Khởi tạo Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const contentRef = db.ref("pastebin");
+
+        // Tự động tải nội dung khi mở trang
+        contentRef.on("value", (snapshot) => {
+            document.getElementById("pasteContent").value = snapshot.val() || "";
+        });
 
         function saveContent() {
             let content = document.getElementById("pasteContent").value;
-            localStorage.setItem("savedPaste", content);
+            contentRef.set(content);
             alert("✅ Đã lưu nội dung!");
         }
 
         function clearContent() {
-            localStorage.removeItem("savedPaste");
+            contentRef.set("");
             document.getElementById("pasteContent").value = "";
             alert("🗑 Đã xóa nội dung!");
         }

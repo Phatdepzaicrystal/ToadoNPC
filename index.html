@@ -60,7 +60,11 @@
 
         <button class="btn-save" id="saveBtn">💾 Lưu</button>
         <button class="btn-clear" id="clearBtn">🗑 Xóa</button>
+                <button class="btn-save" id="pasteBtn">📋 Dán</button>
+        <button class="btn-save" id="saveBtn">💾 Lưu</button>
+        <button class="btn-clear" id="clearBtn">🗑 Xóa</button>
         <button class="btn-refresh" id="refreshBtn">🔄 Làm mới</button>
+        <button class="btn-clear" id="clearHistoryBtn">🧹 Xóa lịch sử</button>
 
         <!-- Lịch sử gần nhất -->
         <div class="history-box" id="historyBox"></div>
@@ -132,7 +136,7 @@ saveBtn.onclick = () => {
     let content = textArea.value;
     contentRef.set(content).then(() => {
         let time = new Date().toLocaleString("vi-VN");
-        historyRef.push(`✔ Lưu lúc ${time}`);
+        historyRef.push(`✔ Đã lưu: ${content}`);
         showToast("Đã lưu!");
     });
 };
@@ -142,7 +146,7 @@ clearBtn.onclick = () => {
     contentRef.set("").then(() => {
         textArea.value = "";
         let time = new Date().toLocaleString("vi-VN");
-        historyRef.push(`🗑 Xóa lúc ${time}`);
+        historyRef.push(`🗑 Đã xóa: ${content}`);
         showToast("Đã xóa!");
     });
 };

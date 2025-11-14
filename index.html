@@ -31,7 +31,6 @@
         border: 1px solid #00ff44;
         opacity: 0;
         transition: opacity 0.3s ease;
-        font-family: "Courier New", monospace;
         box-shadow: 0 0 10px #008f3d;
     }
 
@@ -39,32 +38,28 @@
 
     .history-item { padding: 6px; border-bottom: 1px solid #004d22; color: #00ff44; }
     .history-item:last-child { border-bottom: none; }
-</style>
+    </style>
 </head>
 <body>
-    <h2>Phat Hub Zzz</h2>
 
-    <div class="container">
-        <textarea id="pasteContent" placeholder="Nhập tọa độ NPC..."></textarea><br>
+<h2>Phat Hub Zzz</h2>
 
-        <button class="btn-save" id="saveBtn">💾 Lưu</button>
-        <button class="btn-clear" id="clearBtn">🗑 Xóa</button>
-                <button class="btn-save" id="pasteBtn">📋 Dán</button>
-        <button class="btn-save" id="saveBtn">💾 Lưu</button>
-        <button class="btn-clear" id="clearBtn">🗑 Xóa</button>
-        <button class="btn-refresh" id="refreshBtn">🔄 Làm mới</button>
-        <button class="btn-clear" id="clearHistoryBtn">🧹 Xóa lịch sử</button>
+<div class="container">
+    <textarea id="pasteContent" placeholder="Nhập tọa độ NPC..."></textarea><br>
 
-        <!-- Lịch sử gần nhất -->
-        <div class="history-box" id="historyBox"></div>
-    </div>
+    <!-- 5 NÚT ĐÚNG THEO YÊU CẦU -->
+    <button id="pasteBtn">📋 Dán</button>
+    <button id="saveBtn">💾 Lưu</button>
+    <button id="clearBtn">🗑 Xóa</button>
+    <button id="refreshBtn">🔄 Làm mới</button>
+    <button id="clearHistoryBtn">🧹 Xóa lịch sử</button>
 
-    <!-- Góc thông báo -->
-    <div id="toast"></div>
+    <div class="history-box" id="historyBox"></div>
+</div>
 
+<div id="toast"></div>
 
 <script>
-// Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyB41VujCQ_WfQuHDvUdiyEkfPzMk9QvA-s",
     authDomain: "toadonpc-ede4d.firebaseapp.com",
@@ -84,68 +79,77 @@ const historyRef = db.ref("history");
 let textArea = document.getElementById("pasteContent");
 let historyBox = document.getElementById("historyBox");
 
-// 🔹 Toast nhỏ ở góc
+// Toast
 function showToast(msg) {
-    let toast = document.getElementById("toast");
+    const toast = document.getElementById("toast");
     toast.textContent = msg;
     toast.style.opacity = 1;
     setTimeout(() => toast.style.opacity = 0, 2000);
 }
 
-// 🔹 Tải cache trước
+// Cache
 const cachedData = localStorage.getItem("pasteContent");
 if (cachedData) textArea.value = cachedData;
 
-// 🔹 Tải lịch sử gần nhất
-historyRef.limitToLast(20).on("value", (snap) => {
+// Load history
+historyRef.limitToLast(20).on("value", snap => {
     historyBox.innerHTML = "";
     snap.forEach(child => {
-        let item = document.createElement("div");
-        item.className = "history-item";
-        item.textContent = child.val();
-        historyBox.appendChild(item);
+        let div = document.createElement("div");
+        div.className = "history-item";
+        div.textContent = child.val();
+        historyBox.appendChild(div);
     });
 });
 
-// 🔹 Đồng bộ realtime nội dung chính
-contentRef.on("value", (snapshot) => {
+// Realtime sync
+contentRef.on("value", snapshot => {
     if (snapshot.exists()) {
         let newContent = snapshot.val();
         if (textArea.value !== newContent) {
-            requestAnimationFrame(() => {
-                textArea.value = newContent;
-                localStorage.setItem("pasteContent", newContent);
-            });
+            textArea.value = newContent;
+            localStorage.setItem("pasteContent", newContent);
         }
     }
 });
 
-// 🔹 Lưu nội dung
-saveBtn.onclick = () => {
+// ⭐ NÚT DÁN
+document.getElementById("pasteBtn").onclick = async () => {
+    const text = await navigator.clipboard.readText();
+    textArea.value = text;
+    showToast("Đã dán!");
+};
+
+// ⭐ NÚT LƯU
+document.getElementById("saveBtn").onclick = () => {
     let content = textArea.value;
     contentRef.set(content).then(() => {
-        let time = new Date().toLocaleString("vi-VN");
-        historyRef.push(`✔ Đã lưu: ${content}`);
+        historyRef.push("✔ Đã lưu: " + content);
         showToast("Đã lưu!");
     });
 };
 
-// 🔹 Xóa nội dung
-clearBtn.onclick = () => {
+// ⭐ NÚT XÓA
+document.getElementById("clearBtn").onclick = () => {
     contentRef.set("").then(() => {
+        historyRef.push("🗑 Đã xóa nội dung");
         textArea.value = "";
-        let time = new Date().toLocaleString("vi-VN");
-        historyRef.push(`🗑 Đã xóa: ${content}`);
         showToast("Đã xóa!");
     });
 };
 
-// 🔹 Làm mới
-refreshBtn.onclick = () => {
-    contentRef.once("value").then((snapshot) => {
-        if (snapshot.exists()) textArea.value = snapshot.val();
+// ⭐ NÚT LÀM MỚI
+document.getElementById("refreshBtn").onclick = () => {
+    contentRef.once("value").then(snap => {
+        textArea.value = snap.val() || "";
         showToast("Đã tải lại!");
     });
+};
+
+// ⭐ XÓA LỊCH SỬ
+document.getElementById("clearHistoryBtn").onclick = () => {
+    historyRef.set({});
+    showToast("Đã xóa lịch sử!");
 };
 </script>
 

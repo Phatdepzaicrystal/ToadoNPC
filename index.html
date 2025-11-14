@@ -1,65 +1,106 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paste Tọa Độ</title>
-
-    <!-- Firebase compat -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phat Hub - Tọa Độ NPC</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
     <style>
-    body { font-family: "Courier New", monospace; background: #0c0c0c; color: #00ff44; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    h2 { color: #00ff44; text-shadow: 0 0 8px #00ff44; }
-
-    .container { width: 95%; max-width: 700px; background: #111; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px #008f3d; border: 1px solid #00ff44; }
-
-    textarea { width: 100%; height: 160px; padding: 10px; background: #000; color: #00ff44; border: 1px solid #00ff44; border-radius: 6px; font-family: "Courier New", monospace; box-shadow: inset 0 0 10px #003d19; }
-
-    button { padding: 10px 14px; margin: 5px; border-radius: 6px; cursor: pointer; border: 1px solid #00ff44; background: #000; color: #00ff44; font-family: "Courier New", monospace; transition: 0.2s; }
-    button:hover { background: #003d19; box-shadow: 0 0 10px #00ff44; }
-
-    #toast {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: #000;
-        color: #00ff44;
-        padding: 10px 16px;
-        border-radius: 6px;
-        border: 1px solid #00ff44;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        box-shadow: 0 0 10px #008f3d;
-    }
-
-    .history-box { width: 95%; max-width: 700px; background: #000; padding: 12px; margin-top: 15px; border-radius: 10px; border: 1px solid #00ff44; max-height: 200px; overflow-y: auto; box-shadow: inset 0 0 15px #003d19; }
-
-    .history-item { padding: 6px; border-bottom: 1px solid #004d22; color: #00ff44; }
-    .history-item:last-child { border-bottom: none; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #161b22;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 180px;
+            background: #0d1117;
+            color: #fff;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px;
+            resize: vertical;
+            font-size: 15px;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+        button:hover { background: #2ea043; }
+        .danger { background: #da3633; }
+        .danger:hover { background: #f85149; }
+        .secondary { background: #30363d; }
+        .secondary:hover { background: #484f58; }
+        .log-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            min-height: 120px;
+        }
+        .log-item {
+            padding: 6px 0;
+            border-bottom: 1px solid #30363d;
+        }
+        .log-item:last-child { border-bottom: none; }
+        .small-btn {
+            padding: 6px 10px;
+            font-size: 13px;
+            margin-left: 5px;
+            background: #30363d;
+        }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h2>📍 Phat Hub - Tọa Độ NPC</h2>
+        <textarea id="pasteContent" placeholder="Nhập tọa độ NPC..."></textarea>
 
-<h2>Phat Hub Zzz</h2>
+        <div class="btn-row">
+            <button id="saveBtn">💾 Lưu</button>
+            <button id="copyBtn" class="secondary">📋 Sao chép</button>
+            <button id="pasteBtn" class="secondary">📥 Dán</button>
+        </div>
+        <div class="btn-row">
+            <button id="clearBtn" class="danger">🗑 Xóa</button>
+            <button id="refreshBtn" class="secondary">🔄 Làm mới</button>
+            <button id="clearHistoryBtn" class="danger">🧹 Xóa lịch sử</button>
+        </div>
 
-<div class="container">
-    <textarea id="pasteContent" placeholder="Nhập tọa độ NPC..."></textarea><br>
-
-    <!-- 5 NÚT ĐÚNG THEO YÊU CẦU -->
-    <button id="pasteBtn">📋 Dán</button>
-    <button id="saveBtn">💾 Lưu</button>
-    <button id="clearBtn">🗑 Xóa</button>
-    <button id="refreshBtn">🔄 Làm mới</button>
-    <button id="clearHistoryBtn">🧹 Xóa lịch sử</button>
-
-    <div class="history-box" id="historyBox"></div>
-</div>
-
-<div id="toast"></div>
+        <h3>📝 Lịch sử thao tác</h3>
+        <div id="logBox" class="log-box"></div>
+    </div>
 
 <script>
+// Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyB41VujCQ_WfQuHDvUdiyEkfPzMk9QvA-s",
     authDomain: "toadonpc-ede4d.firebaseapp.com",
@@ -70,88 +111,78 @@ const firebaseConfig = {
     appId: "1:311129256221:web:d97765017b63b33050f1f4",
     measurementId: "G-F5B2R4RJL8"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const contentRef = db.ref("pastebin");
-const historyRef = db.ref("history");
 
-let textArea = document.getElementById("pasteContent");
-let historyBox = document.getElementById("historyBox");
+const txt = document.getElementById("pasteContent");
+const logBox = document.getElementById("logBox");
 
-// Toast
-function showToast(msg) {
-    const toast = document.getElementById("toast");
-    toast.textContent = msg;
-    toast.style.opacity = 1;
-    setTimeout(() => toast.style.opacity = 0, 2000);
+// Load lịch sử
+let history = JSON.parse(localStorage.getItem("history") || "[]");
+renderHistory();
+
+function addHistory(msg){
+    history.unshift(msg);
+    if(history.length > 20) history.pop();
+    localStorage.setItem("history", JSON.stringify(history));
+    renderHistory();
 }
 
-// Cache
-const cachedData = localStorage.getItem("pasteContent");
-if (cachedData) textArea.value = cachedData;
+function renderHistory(){
+    logBox.innerHTML = history.map(h => `<div class='log-item'>${h}</div>`).join("") || "<i>Chưa có lịch sử...</i>";
+}
 
-// Load history
-historyRef.limitToLast(20).on("value", snap => {
-    historyBox.innerHTML = "";
-    snap.forEach(child => {
-        let div = document.createElement("div");
-        div.className = "history-item";
-        div.textContent = child.val();
-        historyBox.appendChild(div);
-    });
-});
-
-// Realtime sync
-contentRef.on("value", snapshot => {
-    if (snapshot.exists()) {
-        let newContent = snapshot.val();
-        if (textArea.value !== newContent) {
-            textArea.value = newContent;
-            localStorage.setItem("pasteContent", newContent);
-        }
+// Firebase load
+contentRef.on("value", snap => {
+    if(snap.exists()){
+        const v = snap.val();
+        if(txt.value !== v) txt.value = v;
     }
 });
 
-// ⭐ NÚT DÁN
-document.getElementById("pasteBtn").onclick = async () => {
-    const text = await navigator.clipboard.readText();
-    textArea.value = text;
-    showToast("Đã dán!");
-};
-
-// ⭐ NÚT LƯU
-document.getElementById("saveBtn").onclick = () => {
-    let content = textArea.value;
-    contentRef.set(content).then(() => {
-        historyRef.push("✔ Đã lưu: " + content);
-        showToast("Đã lưu!");
+// Lưu
+saveBtn.onclick = () => {
+    contentRef.set(txt.value).then(() => {
+        addHistory(`✔️ Đã lưu: ${txt.value.slice(0,50)}...`);
     });
 };
 
-// ⭐ NÚT XÓA
-document.getElementById("clearBtn").onclick = () => {
+// Xóa
+clearBtn.onclick = () => {
     contentRef.set("").then(() => {
-        historyRef.push("🗑 Đã xóa nội dung");
-        textArea.value = "";
-        showToast("Đã xóa!");
+        txt.value = "";
+        addHistory("🗑 Đã xóa nội dung");
     });
 };
 
-// ⭐ NÚT LÀM MỚI
-document.getElementById("refreshBtn").onclick = () => {
-    contentRef.once("value").then(snap => {
-        textArea.value = snap.val() || "";
-        showToast("Đã tải lại!");
+// Làm mới
+refreshBtn.onclick = () => {
+    contentRef.once("value").then(s => {
+        txt.value = s.val() || "";
     });
 };
 
-// ⭐ XÓA LỊCH SỬ
-document.getElementById("clearHistoryBtn").onclick = () => {
-    historyRef.set({});
-    showToast("Đã xóa lịch sử!");
+// Sao chép
+copyBtn.onclick = () => {
+    navigator.clipboard.writeText(txt.value).then(()=>{
+        addHistory("📋 Đã sao chép nội dung");
+    });
+};
+
+// Paste
+pasteBtn.onclick = async () => {
+    const clip = await navigator.clipboard.readText();
+    txt.value = clip;
+    addHistory(`📥 Đã dán: ${clip.slice(0,50)}...`);
+};
+
+// Xóa lịch sử
+clearHistoryBtn.onclick = () => {
+    history = [];
+    localStorage.setItem("history", "[]");
+    renderHistory();
 };
 </script>
-
 </body>
 </html>

@@ -4,92 +4,157 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paste Tọa Độ</title>
-    <!-- ✅ Dùng Firebase bản `compat` -->
+
+    <!-- Firebase compat -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-        textarea { width: 90%; height: 150px; margin-bottom: 10px; }
-        button { padding: 10px; margin: 5px; cursor: pointer; }
+        body { font-family: Arial, sans-serif; margin: 20px; display: flex; flex-direction: column; align-items: center; }
+        h2 { margin-bottom: 10px; }
+        .container { width: 95%; max-width: 600px; }
+        textarea { width: 100%; height: 150px; padding: 10px; border-radius: 6px; border: 1px solid #aaa; }
+        button { padding: 10px 14px; margin: 5px; border-radius: 6px; cursor: pointer; border: none; }
+
+        .btn-save { background: #4CAF50; color: white; }
+        .btn-clear { background: #e74c3c; color: white; }
+        .btn-refresh { background: #3498db; color: white; }
+
+        /* 🔹 Góc thông báo nhỏ */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* 🔹 Lịch sử */
+        .history-box {
+            width: 95%; max-width: 600px;
+            background: #f7f7f7;
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            max-height: 180px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+        .history-item {
+            padding: 6px; border-bottom: 1px solid #ddd;
+        }
+        .history-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
-
     <h2>Phat Hub Zzz</h2>
-    <textarea id="pasteContent" placeholder="Nhập tọa độ NPC..."></textarea><br>
 
-    <button id="saveBtn">💾 Lưu</button>
-    <button id="clearBtn">🗑 Xóa</button>
-    <button id="refreshBtn">🔄 Làm mới</button>
+    <div class="container">
+        <textarea id="pasteContent" placeholder="Nhập tọa độ NPC..."></textarea><br>
 
-    <script>
-        // ✅ Khởi tạo Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyB41VujCQ_WfQuHDvUdiyEkfPzMk9QvA-s",
-            authDomain: "toadonpc-ede4d.firebaseapp.com",
-            databaseURL: "https://toadonpc-ede4d-default-rtdb.firebaseio.com",
-            projectId: "toadonpc-ede4d",
-            storageBucket: "toadonpc-ede4d.appspot.com",
-            messagingSenderId: "311129256221",
-            appId: "1:311129256221:web:d97765017b63b33050f1f4",
-            measurementId: "G-F5B2R4RJL8"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const contentRef = db.ref("pastebin");
+        <button class="btn-save" id="saveBtn">💾 Lưu</button>
+        <button class="btn-clear" id="clearBtn">🗑 Xóa</button>
+        <button class="btn-refresh" id="refreshBtn">🔄 Làm mới</button>
 
-        let textArea = document.getElementById("pasteContent");
+        <!-- Lịch sử gần nhất -->
+        <div class="history-box" id="historyBox"></div>
+    </div>
 
-        // 🔹 Kiểm tra cache trước khi tải từ Firebase
-        const cachedData = localStorage.getItem("pasteContent");
-        if (cachedData) {
-            textArea.value = cachedData;
-        }
+    <!-- Góc thông báo -->
+    <div id="toast"></div>
 
-        // 🔹 Chỉ cập nhật DOM khi nội dung thực sự thay đổi
-        contentRef.on("value", (snapshot) => {
-            if (snapshot.exists()) {
-                let newContent = snapshot.val();
-                if (textArea.value !== newContent) {
-                    requestAnimationFrame(() => {
-                        textArea.value = newContent;
-                        localStorage.setItem("pasteContent", newContent); // Lưu vào cache
-                    });
-                }
-            }
-        });
 
-        // 🔹 Lưu nội dung lên Firebase
-        document.getElementById("saveBtn").addEventListener("click", function () {
-            let content = textArea.value;
-            contentRef.set(content)
-                .then(() => alert("✅ Đã lưu!"))
-                .catch((error) => alert("❌ Lỗi: " + error.message));
-        });
+<script>
+// Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyB41VujCQ_WfQuHDvUdiyEkfPzMk9QvA-s",
+    authDomain: "toadonpc-ede4d.firebaseapp.com",
+    databaseURL: "https://toadonpc-ede4d-default-rtdb.firebaseio.com",
+    projectId: "toadonpc-ede4d",
+    storageBucket: "toadonpc-ede4d.appspot.com",
+    messagingSenderId: "311129256221",
+    appId: "1:311129256221:web:d97765017b63b33050f1f4",
+    measurementId: "G-F5B2R4RJL8"
+};
 
-        // 🔹 Xóa nội dung
-        document.getElementById("clearBtn").addEventListener("click", function () {
-            contentRef.set("")
-                .then(() => {
-                    textArea.value = "";
-                    alert("🗑 Đã xóa nội dung!");
-                })
-                .catch((error) => alert("❌ Lỗi: " + error.message));
-        });
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const contentRef = db.ref("pastebin");
+const historyRef = db.ref("history");
 
-        // 🔹 Nút "Làm mới" để cập nhật nhanh
-        document.getElementById("refreshBtn").addEventListener("click", function () {
-            contentRef.once("value").then((snapshot) => {
-                if (snapshot.exists()) {
-                    requestAnimationFrame(() => {
-                        textArea.value = snapshot.val();
-                    });
-                }
+let textArea = document.getElementById("pasteContent");
+let historyBox = document.getElementById("historyBox");
+
+// 🔹 Toast nhỏ ở góc
+function showToast(msg) {
+    let toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.style.opacity = 1;
+    setTimeout(() => toast.style.opacity = 0, 2000);
+}
+
+// 🔹 Tải cache trước
+const cachedData = localStorage.getItem("pasteContent");
+if (cachedData) textArea.value = cachedData;
+
+// 🔹 Tải lịch sử gần nhất
+historyRef.limitToLast(20).on("value", (snap) => {
+    historyBox.innerHTML = "";
+    snap.forEach(child => {
+        let item = document.createElement("div");
+        item.className = "history-item";
+        item.textContent = child.val();
+        historyBox.appendChild(item);
+    });
+});
+
+// 🔹 Đồng bộ realtime nội dung chính
+contentRef.on("value", (snapshot) => {
+    if (snapshot.exists()) {
+        let newContent = snapshot.val();
+        if (textArea.value !== newContent) {
+            requestAnimationFrame(() => {
+                textArea.value = newContent;
+                localStorage.setItem("pasteContent", newContent);
             });
-        });
-    </script>
+        }
+    }
+});
+
+// 🔹 Lưu nội dung
+saveBtn.onclick = () => {
+    let content = textArea.value;
+    contentRef.set(content).then(() => {
+        let time = new Date().toLocaleString("vi-VN");
+        historyRef.push(`✔ Lưu lúc ${time}`);
+        showToast("Đã lưu!");
+    });
+};
+
+// 🔹 Xóa nội dung
+clearBtn.onclick = () => {
+    contentRef.set("").then(() => {
+        textArea.value = "";
+        let time = new Date().toLocaleString("vi-VN");
+        historyRef.push(`🗑 Xóa lúc ${time}`);
+        showToast("Đã xóa!");
+    });
+};
+
+// 🔹 Làm mới
+refreshBtn.onclick = () => {
+    contentRef.once("value").then((snapshot) => {
+        if (snapshot.exists()) textArea.value = snapshot.val();
+        showToast("Đã tải lại!");
+    });
+};
+</script>
 
 </body>
 </html>
